@@ -13,7 +13,7 @@ from obsidiantools.md_utils import (_get_all_wikilinks_from_html_content,
 
 @pytest.fixture
 def html_wikilinks_stub():
-    html = r"""
+    return r"""
     <pre># Intro</pre>
     This is a very basic string representation.
 
@@ -36,12 +36,11 @@ def html_wikilinks_stub():
     ![[Easter egg.png]]
     ![[Egg.jpg | 125]]
     """
-    return html
 
 
 @pytest.fixture
 def txt_md_links_stub():
-    text = r"""
+    return r"""
     * [The Times 03/Jan/2009 Chancellor on brink of second bailout for banks](<https://www.thetimes.co.uk/article/chancellor-alistair-darling-on-brink-of-second-bailout-for-banks-n9l382mn62h>)
     * [Chancellor Alistair Darling on brink of second bailout for banks](<https://www.thetimes.co.uk/article/chancellor-alistair-darling-on-brink-of-second-bailout-for-banks-n9l382mn62h>)
     * [This is a statement inside square brackets]
@@ -56,13 +55,11 @@ def txt_md_links_stub():
 
     [ADA](<https://cardano.org/>)
     """
-    return text
 
 
 @pytest.fixture
 def txt_sussudio_stub():
-    text = _get_html_from_md_file('tests/vault-stub/Sussudio.md')
-    return text
+    return _get_html_from_md_file('tests/vault-stub/Sussudio.md')
 
 
 def test_get_all_wikilinks_from_html_content(html_wikilinks_stub):
@@ -156,7 +153,7 @@ def test_get_unique_md_links_has_unique_links(txt_md_links_stub):
 
 def test_pretend_wikilink_not_extracted_from_front_matter(txt_sussudio_stub):
     actual_links = _get_unique_wikilinks(txt_sussudio_stub)
-    assert not set(['Polka Party!']).issubset(set(actual_links))
+    assert not {'Polka Party!'}.issubset(set(actual_links))
 
 
 def test_sussudio_front_matter():

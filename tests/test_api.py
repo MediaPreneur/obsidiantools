@@ -7,8 +7,7 @@ from obsidiantools.api import Vault
 
 @pytest.fixture
 def mock_initial_vault(tmp_path):
-    mock_vault = Vault(tmp_path)
-    return mock_vault
+    return Vault(tmp_path)
 
 
 def test_vault_instantiation(tmp_path):

@@ -276,7 +276,7 @@ def test_backlink_individual_notes(actual_connected_vault):
         actual_connected_vault.get_backlinks("Note that isn't in vault at all")
 
     # check that every note is in the backlinks_index
-    graph_nodes = [n for n in actual_connected_vault.graph.nodes]
+    graph_nodes = list(actual_connected_vault.graph.nodes)
     assert (len(actual_bl_ix)
             == (actual_connected_vault.graph.number_of_nodes()))
     for k in list(expected_bl_subset.keys()):

@@ -60,7 +60,7 @@ def get_md_relpaths_matching_subdirs(dir_path, *,
     """
     if not include_subdirs and include_root:
         return get_md_relpaths_from_dir(dir_path)
-    elif not include_subdirs and not include_root:
+    elif not include_subdirs:
         return [i for i in get_md_relpaths_from_dir(dir_path)
                 if str(i.parent) != '.']
     else:
@@ -93,9 +93,7 @@ def get_wikilinks(filepath):
     """
     plaintext = _get_ascii_plaintext_from_md_file(filepath, remove_code=True)
 
-    wikilinks = _get_all_wikilinks_from_html_content(
-        plaintext, remove_aliases=True)
-    return wikilinks
+    return _get_all_wikilinks_from_html_content(plaintext, remove_aliases=True)
 
 
 def get_embedded_files(filepath):
@@ -117,9 +115,9 @@ def get_embedded_files(filepath):
     """
     plaintext = _get_ascii_plaintext_from_md_file(filepath, remove_code=True)
 
-    files = _get_all_embedded_files_from_html_content(
-        plaintext, remove_aliases=True)
-    return files
+    return _get_all_embedded_files_from_html_content(
+        plaintext, remove_aliases=True
+    )
 
 
 def get_unique_wikilinks(filepath):
@@ -141,8 +139,7 @@ def get_unique_wikilinks(filepath):
     """
     plaintext = _get_ascii_plaintext_from_md_file(filepath, remove_code=True)
 
-    wikilinks = _get_unique_wikilinks(plaintext, remove_aliases=True)
-    return wikilinks
+    return _get_unique_wikilinks(plaintext, remove_aliases=True)
 
 
 def get_md_links(filepath):
@@ -162,8 +159,7 @@ def get_md_links(filepath):
     """
     text_str = _get_ascii_plaintext_from_md_file(filepath, remove_code=True)
 
-    links = _get_all_md_link_info_from_ascii_plaintext(text_str)
-    if links:  # links only, not their text
+    if links := _get_all_md_link_info_from_ascii_plaintext(text_str):
         return [t[-1] for t in links]
     else:
         return links
@@ -186,8 +182,7 @@ def get_unique_md_links(filepath):
     """
     text_str = _get_ascii_plaintext_from_md_file(filepath, remove_code=True)
 
-    links = _get_unique_md_links_from_ascii_plaintext(text_str)
-    return links
+    return _get_unique_md_links_from_ascii_plaintext(text_str)
 
 
 def get_front_matter(filepath):
@@ -219,8 +214,7 @@ def get_tags(filepath):
     """
     text_str = _get_ascii_plaintext_from_md_file(filepath, remove_code=True)
     text_str = _remove_wikilinks_from_ascii_plaintext(text_str)
-    tags = _get_tags_from_ascii_plaintext(text_str)
-    return tags
+    return _get_tags_from_ascii_plaintext(text_str)
 
 
 def _get_html2text_obj_with_config():
@@ -257,8 +251,7 @@ def _get_html_from_md_file(filepath):
 def _get_ascii_plaintext_from_html(html):
     """html -> ASCII plaintext, via HTML2Text."""
     txt_maker = _get_html2text_obj_with_config()
-    doc = txt_maker.handle(html)
-    return doc
+    return txt_maker.handle(html)
 
 
 def _get_ascii_plaintext_from_md_file(filepath, *, remove_code=False):
@@ -275,16 +268,14 @@ def _remove_code(html):
     soup = BeautifulSoup(html, 'lxml')
     for s in soup.select('code'):
         s.extract()
-    html_str = str(soup)
-    return html_str
+    return str(soup)
 
 
 def _get_all_wikilinks_and_embedded_files(html):
     # extract links
     pattern = re.compile(WIKILINK_REGEX)
 
-    link_matches_list = pattern.findall(html)
-    return link_matches_list
+    return pattern.findall(html)
 
 
 def _remove_aliases_from_wikilink_regex_matches(link_matches_list):
@@ -327,8 +318,7 @@ def _get_all_md_link_info_from_ascii_plaintext(plaintext):
     # basic regex e.g. catch URLs or paths
     inline_link_regex = re.compile(r'\[([^\]]+)\]\(<([^)]+)>\)')
 
-    links_list_of_tuples = list(inline_link_regex.findall(plaintext))
-    return links_list_of_tuples
+    return list(inline_link_regex.findall(plaintext))
 
 
 def _get_unique_md_links_from_ascii_plaintext(plaintext):
@@ -345,5 +335,4 @@ def _remove_wikilinks_from_ascii_plaintext(plaintext):
 def _get_tags_from_ascii_plaintext(plaintext):
     tags_regex = r'(?<!\()#{1}([A-z]+[0-9_\-]*[A-Z0-9]?)\/?'
     pattern = re.compile(tags_regex)
-    tags_list = pattern.findall(plaintext)
-    return tags_list
+    return pattern.findall(plaintext)

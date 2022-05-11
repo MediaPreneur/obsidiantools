@@ -258,7 +258,7 @@ class Vault:
             raise AttributeError('Connect notes before calling the function')
 
         if note_name not in self._graph.nodes:
-            raise ValueError('"{}" not found in graph.'.format(note_name))
+            raise ValueError(f'"{note_name}" not found in graph.')
         else:
             return self._backlinks_index[note_name]
 
@@ -276,10 +276,9 @@ class Vault:
             raise AttributeError('Connect notes before calling the function')
 
         if note_name not in self._graph.nodes:
-            raise ValueError('"{}" not found in graph.'.format(note_name))
-        else:
-            backlinks = self.get_backlinks(note_name)
-            return dict(Counter(backlinks))
+            raise ValueError(f'"{note_name}" not found in graph.')
+        backlinks = self.get_backlinks(note_name)
+        return dict(Counter(backlinks))
 
     def get_wikilinks(self, file_name):
         """Get wikilinks for a note (given its filename).
@@ -299,7 +298,7 @@ class Vault:
             raise AttributeError('Connect notes before calling the function')
 
         if file_name not in self._file_index:
-            raise ValueError('"{}" does not exist so it cannot have wikilinks.'.format(file_name))
+            raise ValueError(f'"{file_name}" does not exist so it cannot have wikilinks.')
         else:
             return self._wikilinks_index[file_name]
 
@@ -321,7 +320,10 @@ class Vault:
             raise AttributeError('Connect notes before calling the function')
 
         if file_name not in self._file_index:
-            raise ValueError('"{}" does not exist so it cannot have embedded files.'.format(file_name))
+            raise ValueError(
+                f'"{file_name}" does not exist so it cannot have embedded files.'
+            )
+
         else:
             return self._embedded_files_index[file_name]
 
@@ -343,7 +345,7 @@ class Vault:
             raise AttributeError('Connect notes before calling the function')
 
         if file_name not in self._file_index:
-            raise ValueError('"{}" does not exist so it cannot have md links.'.format(file_name))
+            raise ValueError(f'"{file_name}" does not exist so it cannot have md links.')
         else:
             return self._md_links_index[file_name]
 
@@ -364,7 +366,10 @@ class Vault:
         if not self._is_connected:
             raise AttributeError('Connect notes before calling the function')
         if file_name not in self._file_index:
-            raise ValueError('"{}" does not exist so it cannot have front matter.'.format(file_name))
+            raise ValueError(
+                f'"{file_name}" does not exist so it cannot have front matter.'
+            )
+
         else:
             return self._front_matter_index[file_name]
 
@@ -386,7 +391,7 @@ class Vault:
         if not self._is_connected:
             raise AttributeError('Connect notes before calling the function')
         if file_name not in self._file_index:
-            raise ValueError('"{}" does not exist so it cannot have tags.'.format(file_name))
+            raise ValueError(f'"{file_name}" does not exist so it cannot have tags.')
         else:
             return self._tags_index[file_name]
 
@@ -410,7 +415,7 @@ class Vault:
         if not self._is_gathered:
             raise AttributeError('Gather notes before calling the function')
         if file_name not in self._file_index:
-            raise ValueError('"{}" does not exist so it cannot have text.'.format(file_name))
+            raise ValueError(f'"{file_name}" does not exist so it cannot have text.')
         else:
             return self._text_index[file_name]
 
@@ -505,12 +510,12 @@ class Vault:
         if not self._is_connected:
             raise AttributeError('Connect notes before calling the function')
 
-        df = (pd.DataFrame(index=list(self._backlinks_index.keys()))
-              .rename_axis('note')
-              .pipe(self._create_note_metadata_columns)
-              .pipe(self._clean_up_note_metadata_dtypes)
-              )
-        return df
+        return (
+            pd.DataFrame(index=list(self._backlinks_index.keys()))
+            .rename_axis('note')
+            .pipe(self._create_note_metadata_columns)
+            .pipe(self._clean_up_note_metadata_dtypes)
+        )
 
     def _create_note_metadata_columns(self, df):
         """pipe func for mutating df"""
@@ -533,10 +538,13 @@ class Vault:
                                            for f in df.index],
                                           np.NaN)
         df['modified_time'] = pd.to_datetime(
-            [os.path.getmtime(f) if not pd.isna(f) else np.NaN
-             for f in df['abs_filepath']],
-            unit='s'
+            [
+                np.NaN if pd.isna(f) else os.path.getmtime(f)
+                for f in df['abs_filepath']
+            ],
+            unit='s',
         )
+
         return df
 
     def _clean_up_note_metadata_dtypes(self, df):
